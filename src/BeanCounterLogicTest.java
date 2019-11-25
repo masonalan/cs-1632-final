@@ -1,0 +1,228 @@
+import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.mockito.*;
+
+import java.util.Random;
+import java.io.*;
+
+public class BeanCounterLogicTest {
+
+	BeanCounterLogic b;
+	private ByteArrayOutputStream out = new ByteArrayOutputStream();
+	private PrintStream oldOut;
+
+	@Before
+	public void setup()
+	{
+		b = new BeanCounterLogic(4);
+	}
+	
+	@Test
+	public void testConstructorNumSlotsMadeReg()
+	{
+		assertEquals(b.slots.length, 4);
+	}
+
+	@Test
+	public void testConstructorBeanAtTop()
+	{
+		assertNotNull(b.pegs[0]);
+	}
+
+	@Test
+	public void testConstructorEmptyQueue()
+	{
+		assertEquals(b.waitingBeans.size(), 0);
+	}
+
+	@Test
+	public void testGetRemainingBeanCount()
+	{
+		b.waitingBeans.add(Mockito.mock(Bean.class));
+		b.waitingBeans.add(Mockito.mock(Bean.class));
+		b.waitingBeans.add(Mockito.mock(Bean.class));
+		assertEquals(b.waitingBeans.size(), 3);
+	}
+
+	@Test
+	public void testGetInFlightBeanXPosStart()
+	{
+		assertEquals(b.getInFlightBeanXPos(0), 0);
+	}
+
+	@Test
+	public void testGetInFlightBeanXPosEnd()
+	{
+		b.pegs[5] = Mockito.mock(Bean.class);
+		assertEquals(b.getInFlightBeanXPos(2), 2);
+	}
+
+	@Test
+	public void testGetInFlightBeanXPosMid()
+	{
+		b.pegs[2] = Mockito.mock(Bean.class);
+		assertEquals(b.getInFlightBeanXPos(1), 1);
+	}
+	
+	@Test
+	public void testGetSlotBeanCountEmpty()
+	{
+		assertEquals(b.getSlotBeanCount(0), 0);
+	}
+
+	@Test
+	public void testGetSlotBeanCountNonEmpty()
+	{
+		b.slots[0].add(Mockito.mock(Bean.class));
+		assertEquals(b.getSlotBeanCount(0), 1);
+	}
+
+	@Test
+	public void testAverageSlotBeanCount()
+	{
+		b.slots[0].add(Mockito.mock(Bean.class));
+		b.slots[1].add(Mockito.mock(Bean.class));
+		b.slots[1].add(Mockito.mock(Bean.class));
+		b.slots[2].add(Mockito.mock(Bean.class));
+		b.slots[2].add(Mockito.mock(Bean.class));
+		b.slots[2].add(Mockito.mock(Bean.class));
+		b.slots[3].add(Mockito.mock(Bean.class));
+		b.slots[3].add(Mockito.mock(Bean.class));
+		b.slots[3].add(Mockito.mock(Bean.class));
+		b.slots[3].add(Mockito.mock(Bean.class));
+		assertEquals(b.getAverageSlotBeanCount(), 2.5f, 0);
+	}
+
+	@Test
+	public void testResetBeanAtTop()
+	{
+		Bean array[] = {Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class)};
+		b.reset(array);
+		assertNotNull(b.pegs[0]);
+	}
+
+	@Test
+	public void testResetPegArrLengthCorrect()
+	{
+		Bean array[] = {Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class)};
+		b.reset(array);
+		assertEquals(b.pegs.length, 6);
+	}
+
+	@Test
+	public void testResetQueueSizeCorrect()
+	{
+		Bean array[] = {Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class)};
+		//Bean array[] = {Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class), Mockito.mock(Bean.class)};
+		b.reset(array);
+		assertEquals(b.waitingBeans.size(), 4);
+	}
+
+	@Test
+	public void testAdvanceStepFallLeftStart()
+	{
+		Bean top = Mockito.mock(Bean.class);
+		Mockito.when(top.fall()).thenReturn(0);
+		b.pegs[0] = top;
+		b.advanceStep();
+		assertNotNull(b.pegs[1]);
+		assertNull(b.pegs[0]);
+	}
+
+	@Test
+	public void testAdvanceStepFallLeftMiddle()
+	{
+		Bean top = Mockito.mock(Bean.class);
+		Mockito.when(top.fall()).thenReturn(0);
+		b.pegs[0] = null;
+		b.pegs[2] = top;
+		b.advanceStep();
+		assertNotNull(b.pegs[4]);
+		assertNull(b.pegs[2]);
+	}
+
+	@Test
+	public void testAdvanceStepFallLeftEnd()
+	{
+		Bean top = Mockito.mock(Bean.class);
+		Mockito.when(top.fall()).thenReturn(0);
+		b.pegs[0] = null;
+		b.pegs[4] = top;
+		b.advanceStep();
+		assertEquals(b.slots[1].size(), 1);
+		assertNull(b.pegs[4]);
+	}
+
+	@Test
+	public void testAdvanceStepFallRightStart()
+	{
+		Bean top = Mockito.mock(Bean.class);
+		Mockito.when(top.fall()).thenReturn(1);
+		b.pegs[0] = top;
+		b.advanceStep();
+		assertNotNull(b.pegs[2]);
+		assertNull(b.pegs[0]);
+	}
+
+	@Test
+	public void testAdvanceStepFallRightMiddle()
+	{
+		Bean top = Mockito.mock(Bean.class);
+		Mockito.when(top.fall()).thenReturn(1);
+		b.pegs[0] = null;
+		b.pegs[2] = top;
+		b.advanceStep();
+		assertNotNull(b.pegs[5]);
+		assertNull(b.pegs[2]);
+	}
+
+	@Test
+	public void testAdvanceStepFallRightEnd()
+	{
+		Bean top = Mockito.mock(Bean.class);
+		Mockito.when(top.fall()).thenReturn(1);
+		b.pegs[0] = null;
+		b.pegs[4] = top;
+		b.advanceStep();
+		assertEquals(b.slots[2].size(), 1);
+		assertNull(b.pegs[4]);
+	}
+
+	@Before
+	public void setUp() 
+	{
+		oldOut = System.out;
+		System.setOut(new PrintStream(out)); 
+	}
+
+	@Test
+	public void testMainNotTwoArgs()
+	{
+		BeanCounterLogic.main(new String[]{"a"});
+		assertEquals(out.toString(), "Usage: java BeanCounterLogic <number of beans> <luck | skill>\nExample: java BeanCounterLogic 400 luck\n");
+	}
+
+	@Test
+	public void testMainLessThanZeroBeans()
+	{
+		BeanCounterLogic.main(new String[]{"-1", "luck"});
+		assertEquals(out.toString(), "Usage: java BeanCounterLogic <number of beans> <luck | skill>\nExample: java BeanCounterLogic 400 luck\n");
+	}
+
+	@Test
+	public void testMainRegInput()
+	{
+		BeanCounterLogic.main(new String[]{"100", "luck"});
+		assertTrue(out.toString().matches("Slot bean counts:\n\\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \n"));
+	}
+
+	@After
+	public void tearDown() 
+	{
+		System.setOut(oldOut); 
+	}
+}

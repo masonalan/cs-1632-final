@@ -1,0 +1,18 @@
+target = BeanCounterLogic
+target.args = test
+
+# Enumerate all possible values returned by Random.nextInt
+cg.enumerate_random = true
+
+# On property violation, print the error, the choice trace, and the Java stack snapshot
+report.console.property_violation=error,trace,snapshot
+
+# If true, prints program output as JPF traverses all possible paths
+vm.tree_output = true
+
+# Listeners.  Generate choice trace and state DOT files, and also raise error on asserts
+listener=.listener.SimpleDot,.listener.AssertionProperty,.listener.ChoiceTracker
+choice.trace = BeanCounterLogic.trace
+
+# If enabled, don't stop at the first error.  Report all errors.
+# search.multiple_errors = true
