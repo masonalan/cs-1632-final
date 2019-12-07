@@ -1,0 +1,15 @@
+digraph BeanCounterLogic {
+node [shape=circle,style=filled,fillcolor=white]
+edge [fontsize=10,fontname=Helvetica,fontcolor=blue,color=cadetblue,style="setlinewidth(0.5)",arrowhead=empty,arrowsize=0.5]
+pad=0.5
+
+label="BeanCounterLogic"
+S [fillcolor=green]  // start state
+
+S -> 0 [label="T0"arrowhead=normal,headlabel="getInt"]
+
+0 -> 1 [label="0"arrowhead=normal,headlabel="getInt"]
+
+1 -> e1 [label="1"arrowhead=normal,headlabel="ArrayIndexOutOfBoundsException"]
+e1 [color=red,fillcolor=lightcoral]  // error state
+}
