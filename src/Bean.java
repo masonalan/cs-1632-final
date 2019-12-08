@@ -29,6 +29,8 @@ public class Bean implements Comparable<Bean> {
 	private int xCoord;
 	private int skill;
 	private int spacesToMove;
+
+	private boolean hasMoved = false;
 	
 
 	/**
@@ -72,13 +74,18 @@ public class Bean implements Comparable<Bean> {
 	 * level of the bean, otherwise move right.
 	 */
 	public void fallOnce() {
+		if (this.hasMoved == false)
+		{
+			this.spacesToMove = this.skill;
+			this.hasMoved = true;
+		}
 		if(this.luckModeOn) {
 			if (this.random.nextBoolean()) {
 				this.xCoord++;
 			}	
 		}
 		else{
-			if (this.spacesToMove > 0) {
+			if (this.spacesToMove >= 0) {
 				this.xCoord++;
 				this.spacesToMove--;
 			}
