@@ -203,13 +203,16 @@ public class BeanCounterLogicTest {
 		assertEquals(b.slots[1].size(), 3);
 	}
 
+	/**
+	 *  Okay
+	 */
 	@Before
 	public void setUp() {
 		oldOut = System.out;
 		try {
 			System.setOut(new PrintStream(out, false, "UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (UnsupportedEncodingException error) {
+			error.printStackTrace();
 		}
 	}
 
@@ -220,8 +223,8 @@ public class BeanCounterLogicTest {
 			assertEquals(out.toString("UTF-8"),
                     "Usage: java BeanCounterLogic <number of beans> <luck | skill>"
                             + "\nExample: java BeanCounterLogic 400 luck\n");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (UnsupportedEncodingException error) {
+			error.printStackTrace();
 		}
 	}
 
@@ -232,8 +235,8 @@ public class BeanCounterLogicTest {
 			assertEquals(out.toString("UTF-8"),
                     "Usage: java BeanCounterLogic <number of beans> <luck | skill>"
                             + "\nExample: java BeanCounterLogic 400 luck\n");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (UnsupportedEncodingException error) {
+			error.printStackTrace();
 		}
 	}
 
@@ -243,9 +246,28 @@ public class BeanCounterLogicTest {
 		try {
 			assertTrue(out.toString("UTF-8").matches(
                     "Slot bean counts:\n\\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \\d+ \n"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (UnsupportedEncodingException error) {
+			error.printStackTrace();
 		}
+	}
+
+	@Test
+	public void testStupidTestModeWhichIsCoveredByModelChecking() {
+		BeanCounterLogic.main(new String[]{"test"});
+	}
+
+	@Test
+	public void testGetRemBeanCount() {
+		assert b.getRemainingBeanCount() == 0;
+	}
+
+	@Test
+	public void testReset() {
+		b.pegs[1] = Mockito.mock(Bean.class);
+		b.slots[0].add(Mockito.mock(Bean.class));
+		b.repeat();
+		assert b.pegs[1] == null;
+		assert b.slots[0].isEmpty();
 	}
 
 	@After

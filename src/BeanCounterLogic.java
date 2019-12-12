@@ -75,9 +75,9 @@ public class BeanCounterLogic {
 		if (pegs.length == 0) {
 			return NO_BEAN_IN_YPOS;
 		}
-		if (pegs.length == 1 && pegs[0] != null) {
-			return 0;
-		}
+//		if (pegs.length == 1 && pegs[0] != null) {
+//			return 0;
+//		}
 		int i = yPos * (yPos + 1) / 2;
 		for (int j = i; j < i + yPos + 1 && j < pegs.length; j ++) {
 			Bean b = pegs[j];
@@ -188,6 +188,7 @@ public class BeanCounterLogic {
 		}
 		for (int k = 0; k < pegs.length; k ++) {
 			if (pegs[k] != null) {
+				System.out.println("Found bean.");
 				waitingBeans.add(pegs[k]);
 				pegs[k] = null;
 			}
@@ -258,9 +259,9 @@ public class BeanCounterLogic {
 		if (args.length == 1 && args[0].equals("test")) {
 			// TODO: Verify the model checking passes for beanCount values 0-3 and slotCount
 			// values 1-5 using the JPF Verify API.
+
 			beanCount = Verify.getInt(0, 3);
 			slotCount = Verify.getInt(1, 5);
-
 			// Create the internal logic
 			BeanCounterLogic logic = new BeanCounterLogic(slotCount);
 			// Create the beans (in luck mode)
@@ -314,7 +315,6 @@ public class BeanCounterLogic {
 			}
 			remainingCount += logic.waitingBeans.size();
 			assert remainingCount == 0;
-			
 			return;
 		}
 
