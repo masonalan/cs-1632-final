@@ -3,37 +3,32 @@ import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.*;
 
 import java.util.Random;
-
-import org.mockito.*;
 
 public class BeanTest {
 
 	@Test
-	public void testConstructorLuck()
-	{
+	public void testConstructorLuck() {
 		Bean b = new Bean(true, new Random());
 		assertEquals(b.isLuck, true);
 	}
 
 	@Test
-	public void testConstructorNotLuck()
-	{
+	public void testConstructorNotLuck() {
 		Bean b = new Bean(false, new Random());
 		assertEquals(b.isLuck, false);
 	}
 
 	@Test
-	public void testConstructorGeneratesSkill()
-	{
+	public void testConstructorGeneratesSkill() {
 		Bean b = new Bean(false, new Random());
 		assertTrue(b.right > -1);
 	}
 
 	@Test
-	public void testFallSkillFallsRight()
-	{
+	public void testFallSkillFallsRight() {
 		Bean b = new Bean(false, new Random());
 		b.right = 1;
 		int r = b.fall();
@@ -41,17 +36,15 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testFallSkillDecreasesRight()
-	{
+	public void testFallSkillDecreasesRight() {
 		Bean b = new Bean(false, new Random());
 		b.right = 1;
-		int r = b.fall();
+		b.fall();
 		assertEquals(b.right, 0);
 	}
 
 	@Test
-	public void testFallLuckFallsRight()
-	{
+	public void testFallLuckFallsRight() {
 		Random rand = Mockito.mock(Random.class);
 		Mockito.when(rand.nextInt(2)).thenReturn(1);
 		Bean b = new Bean(true, rand);
@@ -60,8 +53,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testFallLuckFallsLeft()
-	{
+	public void testFallLuckFallsLeft() {
 		Random rand = Mockito.mock(Random.class);
 		Mockito.when(rand.nextInt(2)).thenReturn(0);
 		Bean b = new Bean(true, rand);

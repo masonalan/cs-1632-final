@@ -1,26 +1,28 @@
+import gov.nasa.jpf.vm.Verify;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
-import java.util.ArrayList;
 
 /**
  * Code by @author Wonsun Ahn
  * 
- * BeanCounterLogic: The bean counter, also known as a quincunx or the Galton
+ * <p>BeanCounterLogic: The bean counter, also known as a quincunx or the Galton
  * box, is a device for statistics experiments named after English scientist Sir
  * Francis Galton. It consists of an upright board with evenly spaced nails (or
  * pegs) in a triangular form. Each bean takes a random path and falls into a
- * slot.
+ * slot.</p>
  *
- * Beans are dropped from the opening of the board. Every time a bean hits a
+ * <p>Beans are dropped from the opening of the board. Every time a bean hits a
  * nail, it has a 50% chance of falling to the left or to the right. The piles
- * of beans are accumulated in the slots at the bottom of the board.
+ * of beans are accumulated in the slots at the bottom of the board.</p>
  * 
- * This class implements the core logic of the machine. The MainPanel uses the
- * state inside BeanCounterLogic to display on the screen.
+ * <p>This class implements the core logic of the machine. The MainPanel uses the
+ * state inside BeanCounterLogic to display on the screen.</p>
  * 
- * Note that BeanCounterLogic uses a logical coordinate system to store the
+ * <p>Note that BeanCounterLogic uses a logical coordinate system to store the
  * positions of in-flight beans.For example, for a 4-slot machine: (0, 0) (1, 0)
  *                      (0, 0)
  *               (1, 0)        (1, 1)
@@ -28,14 +30,14 @@ import java.util.ArrayList;
  * [Slot0]       [Slot1]       [Slot2]      [Slot3]
  * 0 1 3 6 10 15
  * 0 1 2 3 4 5 6 7 8 9 
- * 0 1 1 2 2 2 3 3 3 3
+ * 0 1 1 2 2 2 3 3 3 3</p>
  */
 
 public class BeanCounterLogic {
 	// TODO: Add member methods and variables as needed
 	public Queue<Bean> waitingBeans;
-	public Bean pegs[];
-	public ArrayList<Bean> slots[];
+	public Bean[] pegs;
+	public ArrayList<Bean>[] slots;
 	public int slottedBeanCount = 0;
 
 	// No bean in that particular Y coordinate
@@ -48,10 +50,9 @@ public class BeanCounterLogic {
 	 * 
 	 * @param slotCount the number of slots in the machine
 	 */
-	BeanCounterLogic(int slotCount) 
-	{
+	BeanCounterLogic(int slotCount) {
 		slots = new ArrayList[slotCount];
-		Bean arr[] = {new Bean(true, new Random())};
+		Bean[] arr = {new Bean(true, new Random())};
 		reset(arr);
 	}
 
@@ -71,11 +72,18 @@ public class BeanCounterLogic {
 	 * @return the x-coordinate of the in-flight bean
 	 */
 	public int getInFlightBeanXPos(int yPos) {
+		if (pegs.length == 0) {
+			return NO_BEAN_IN_YPOS;
+		}
+		if (pegs.length == 1 && pegs[0] != null) {
+			return 0;
+		}
 		int i = yPos * (yPos + 1) / 2;
-		for (int j = i; j < i + yPos + 1; j ++) {
+		for (int j = i; j < i + yPos + 1 && j < pegs.length; j ++) {
 			Bean b = pegs[j];
-			if (b != null)
+			if (b != null) {
 				return j - i;
+			}
 		}
 		return NO_BEAN_IN_YPOS;
 	}
@@ -110,8 +118,7 @@ public class BeanCounterLogic {
 	 */
 	public int getHalf() {
 		int count = 0;
-		for (int i = 0; i < slots.length; i ++)
-		{
+		for (int i = 0; i < slots.length; i ++) {
 			count += slots[i].size();
 		}
 		return count / 2;
@@ -155,15 +162,16 @@ public class BeanCounterLogic {
 	 * A hard reset. Initializes the machine with the passed beans. The machine
 	 * starts with one bean at the top.
 	 */
-	public void reset(Bean[] beans) 
-	{
+	public void reset(Bean[] beans) {
 		int t = slots.length - 1;
 		pegs = new Bean[t * (t + 1) / 2];
 		for (int i = 0; i < slots.length; i ++) {
 			slots[i] = new ArrayList<Bean>();
 		}
 		waitingBeans = new LinkedList(Arrays.asList(beans));
-		pegs[0] = waitingBeans.poll();
+		if (pegs.length > 0) {
+			pegs[0] = waitingBeans.poll();
+		}
 	}
 
 	/**
@@ -172,18 +180,14 @@ public class BeanCounterLogic {
 	 * beginning, the machine starts with one bean at the top.
 	 */
 	public void repeat() {
-		for (int i = 0; i < slots.length; i ++)
-		{
+		for (int i = 0; i < slots.length; i ++) {
 			ArrayList<Bean> slot = slots[i];
-			for (int j = 0; j < slot.size(); j ++)
-			{
+			for (int j = 0; j < slot.size(); j ++) {
 				waitingBeans.add(slot.remove(0));
 			}
 		}
-		for (int k = 0; k < pegs.length; k ++)
-		{
-			if (pegs[k] != null)
-			{
+		for (int k = 0; k < pegs.length; k ++) {
+			if (pegs[k] != null) {
 				waitingBeans.add(pegs[k]);
 				pegs[k] = null;
 			}
@@ -201,24 +205,31 @@ public class BeanCounterLogic {
 	 */
 	public boolean advanceStep() {
 		boolean status = false;
-		for (int i = slots.length - 2; i >= 0; i --)
-		{
+		for (int i = slots.length - 2; i >= 0; i --) {
 			int x = getInFlightBeanXPos(i);
-			if (x < 0)
+			if (x < 0) {
 				continue;
+			}
 			int index = i * (i + 1) / 2 + x;
 			status = true;
 			Bean b = pegs[index];
 			pegs[index] = null;
 			int j = i + 1;
-			if (j > slots.length - 2)
-			{
+			if (j > slots.length - 2) {
 				slots[x + b.fall()].add(b);
 				continue;
 			}
 			int newIndex = j * (j + 1) / 2 + x;
 			newIndex += b.fall();
 			pegs[newIndex] = b;
+		}
+		if (slots.length == 1) {
+			Bean polled = waitingBeans.poll();
+			if (polled == null) {
+				return false;
+			}
+			slots[0].add(polled);
+			return true;
 		}
 		pegs[0] = waitingBeans.poll();
 		return status;
@@ -247,8 +258,9 @@ public class BeanCounterLogic {
 		if (args.length == 1 && args[0].equals("test")) {
 			// TODO: Verify the model checking passes for beanCount values 0-3 and slotCount
 			// values 1-5 using the JPF Verify API.
-			
-			
+			beanCount = Verify.getInt(0, 3);
+			slotCount = Verify.getInt(1, 5);
+
 			// Create the internal logic
 			BeanCounterLogic logic = new BeanCounterLogic(slotCount);
 			// Create the beans (in luck mode)
@@ -273,12 +285,35 @@ public class BeanCounterLogic {
 
 				// TODO: Check invariant property: the sum of remaining, in-flight, and in-slot
 				// beans always have to be equal to beanCount
+				int count = logic.waitingBeans.size();
+				for (int i = 0; i < logic.pegs.length; i ++) {
+					if (logic.pegs[i] != null) {
+						count++;
+					}
+				}
+				for (int i = 0; i < logic.slots.length; i ++) {
+					count += logic.slots[i].size();
+				}
+				assert count == beanCount;
 				
 			}
 			// TODO: Check invariant property: when the machine finishes,
 			// 1. There should be no remaining beans.
 			// 2. There should be no beans in-flight.
 			// 3. The number of in-slot beans should be equal to beanCount.
+			int inSlotCount = 0;
+			for (int i = 0; i < logic.slots.length; i ++) {
+				inSlotCount += logic.slots[i].size();
+			}
+			assert inSlotCount == beanCount;
+			int remainingCount = 0;
+			for (int i = 0; i < logic.pegs.length; i ++) {
+				if (logic.pegs[i] != null) {
+					remainingCount++;
+				}
+			}
+			remainingCount += logic.waitingBeans.size();
+			assert remainingCount == 0;
 			
 			return;
 		}
