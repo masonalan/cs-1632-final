@@ -105,11 +105,33 @@ public class BeanCounterLogic {
 	}
 
 	/**
+	 * Returns the size of half of the slot count
+	 * @return half the size
+	 */
+	public int getHalf() {
+		int count = 0;
+		for (int i = 0; i < slots.length; i ++)
+		{
+			count += slots[i].size();
+		}
+		return count / 2;
+	}
+
+	/**
 	 * Removes the lower half of all beans currently in slots, keeping only the
 	 * upper half.
 	 */
 	public void upperHalf() {
-		// TODO: Implement
+		int half = getHalf();
+		int s = 0;
+		for (int i = 0; i < half; i ++) {
+			ArrayList slot = slots[s];
+			while (slot.size() == 0) {
+				s++;
+				slot = slots[s];
+			}
+			slot.remove(0);
+		}
 	}
 
 	/**
@@ -117,7 +139,16 @@ public class BeanCounterLogic {
 	 * lower half.
 	 */
 	public void lowerHalf() {
-		// TODO: Implement
+		int half = getHalf();
+		int s = slots.length - 1;
+		for (int i = 0; i < half; i ++) {
+			ArrayList slot = slots[s];
+			while (slot.size() == 0) {
+				s--;
+				slot = slots[s];
+			}
+			slot.remove(slot.size() - 1);
+		}
 	}
 
 	/**

@@ -6,6 +6,8 @@ import org.junit.Test;
 
 import org.mockito.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 import java.io.*;
 
@@ -190,6 +192,28 @@ public class BeanCounterLogicTest {
 		b.advanceStep();
 		assertEquals(b.slots[2].size(), 1);
 		assertNull(b.pegs[4]);
+	}
+
+	@Test
+	public void testUpperHalfEvenlySplitSlots()
+	{
+		Bean bean = Mockito.mock(Bean.class);
+		b.slots[1] = new ArrayList<>(Arrays.asList(bean, bean, bean));
+		b.slots[3] = new ArrayList<>(Arrays.asList(bean, bean, bean));
+		b.upperHalf();
+		assertEquals(b.slots[1].size(), 0);
+		assertEquals(b.slots[3].size(), 3);
+	}
+
+	@Test
+	public void testLowerHalfEvenlySplitSlots()
+	{
+		Bean bean = Mockito.mock(Bean.class);
+		b.slots[1] = new ArrayList<>(Arrays.asList(bean, bean, bean));
+		b.slots[3] = new ArrayList<>(Arrays.asList(bean, bean, bean));
+		b.lowerHalf();
+		assertEquals(b.slots[3].size(), 0);
+		assertEquals(b.slots[1].size(), 3);
 	}
 
 	@Before
