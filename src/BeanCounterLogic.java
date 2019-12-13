@@ -52,7 +52,7 @@ public class BeanCounterLogic {
 	 */
 	BeanCounterLogic(int slotCount) {
 		slots = new ArrayList[slotCount];
-		Bean[] arr = {new Bean(true, new Random())};
+		Bean[] arr = {};
 		reset(arr);
 	}
 
@@ -171,6 +171,9 @@ public class BeanCounterLogic {
 		waitingBeans = new LinkedList(Arrays.asList(beans));
 		if (pegs.length > 0) {
 			pegs[0] = waitingBeans.poll();
+		} else if (slots.length == 0)
+		{
+			slots[0].add(waitingBeans.poll());
 		}
 	}
 
@@ -183,16 +186,18 @@ public class BeanCounterLogic {
 		for (int i = 0; i < slots.length; i ++) {
 			ArrayList<Bean> slot = slots[i];
 			for (int j = 0; j < slot.size(); j ++) {
+				System.out.println("Found bean at slot = " + i);
 				waitingBeans.add(slot.remove(0));
 			}
 		}
 		for (int k = 0; k < pegs.length; k ++) {
 			if (pegs[k] != null) {
-				System.out.println("Found bean.");
+				System.out.println("Found bean at k = " + k);
 				waitingBeans.add(pegs[k]);
 				pegs[k] = null;
 			}
 		}
+		System.out.println("Waiting: " + waitingBeans.size());
 		pegs[0] = waitingBeans.poll();
 	}
 

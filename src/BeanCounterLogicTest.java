@@ -27,6 +27,7 @@ public class BeanCounterLogicTest {
 
 	@Test
 	public void testConstructorBeanAtTop() {
+		b.reset(new Bean[]{Mockito.mock(Bean.class)});
 		assertNotNull(b.pegs[0]);
 	}
 
@@ -45,6 +46,7 @@ public class BeanCounterLogicTest {
 
 	@Test
 	public void testGetInFlightBeanXPosStart() {
+		b.reset(new Bean[]{Mockito.mock(Bean.class)});
 		assertEquals(b.getInFlightBeanXPos(0), 0);
 	}
 
@@ -95,6 +97,7 @@ public class BeanCounterLogicTest {
 				Mockito.mock(Bean.class)};
 		b.reset(array);
 		assertNotNull(b.pegs[0]);
+		assert b.waitingBeans.size() == 4;
 	}
 
 	@Test
@@ -262,12 +265,14 @@ public class BeanCounterLogicTest {
 	}
 
 	@Test
-	public void testReset() {
+	public void testRepeat() {
+		System.setOut(oldOut);
 		b.pegs[1] = Mockito.mock(Bean.class);
 		b.slots[0].add(Mockito.mock(Bean.class));
 		b.repeat();
 		assert b.pegs[1] == null;
 		assert b.slots[0].isEmpty();
+		assert b.waitingBeans.size() == 1;
 	}
 
 	@After
