@@ -171,8 +171,7 @@ public class BeanCounterLogic {
 		waitingBeans = new LinkedList(Arrays.asList(beans));
 		if (pegs.length > 0) {
 			pegs[0] = waitingBeans.poll();
-		} else if (slots.length == 0)
-		{
+		} else if (slots.length == 0) {
 			slots[0].add(waitingBeans.poll());
 		}
 	}

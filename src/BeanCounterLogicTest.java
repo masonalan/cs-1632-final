@@ -275,6 +275,15 @@ public class BeanCounterLogicTest {
 		assert b.waitingBeans.size() == 1;
 	}
 
+	@Test
+	public void testRepeatAllWaiting() {
+		System.setOut(oldOut);
+		b.waitingBeans.add(Mockito.mock(Bean.class));
+		b.waitingBeans.add(Mockito.mock(Bean.class));
+		b.repeat();
+		assert b.waitingBeans.size() == 1;
+	}
+
 	@After
 	public void tearDown() {
 		System.setOut(oldOut); 
